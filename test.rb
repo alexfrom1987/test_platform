@@ -1,14 +1,30 @@
 require 'bcrypt'
 
-my_password = BCrypt::Password.create("my password")
-my_password1 = BCrypt::Password.create("my password")
-my_password2 = BCrypt::Password.create("my password")
-my_password == "my password"     #=> true
+module Crud
+ require 'bcrypt'
+ puts "Module CRUD activated"
 
-puts my_password
-puts my_password1
-puts my_password2
+ def create_hash_digest(password)
+   BCrypt::Password.create(password)
+ end
 
-# my_password = BCrypt::Password.new("$2a$12$8gXsxOuCHwclYPJY0dmiZeSIvQv09eaXedFtmfrLIS/mRtFw.VSXS")
-# puts my_password == "my password"     #=> true
-# # my_password == "not my password" #=> false
+ def verify_hash_digest(password)
+   BCrypt::Password.new(password)
+ end
+
+ def create_secure_users(list_of_users)
+   list_of_users.each do |user_record|
+     user_record[:password] = create_hash_digest(user_record[:password])
+   end
+   list_of_users
+ end
+
+ def authenticate_user(username, password, list_of_users)
+   list_of_users.each do |user_record|
+     if user_record[:username] == username && verify_hash_digest(user_record[:password]) == password
+       return user_record
+     end
+   end
+   "Credentials were not correct"
+ end
+end
